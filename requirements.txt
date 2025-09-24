@@ -1,0 +1,7 @@
+openai
+streamlit
+llama-index-core
+llama-index-vector_stores-chroma
+llama-index-embeddings-dashscope
+chromadb
+pdf2image

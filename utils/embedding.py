@@ -1,19 +1,19 @@
+import os
 import json
-from pathlib import Path
-from typing import Tuple, List, Union
-from bs4 import BeautifulSoup
 import base64
 import chromadb
+from pathlib import Path
+from typing import List
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
-from llama_index.core import VectorStoreIndex, Settings, StorageContext
+from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.embeddings.dashscope import DashScopeEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.core.schema import BaseNode, TextNode, ImageNode, Document
+from llama_index.core.schema import BaseNode, TextNode
 
 from .request_models import request_vlm
 
-import os
-from dotenv import load_dotenv
 
 load_dotenv()
 dashscope_api_key               = os.getenv("DASHSCOPE_API_KEY")
@@ -185,6 +185,10 @@ def create_nodes(parsed_result_path_list: List[Path]) -> List[List[BaseNode]]:
                         # 用VLM把图片描述为文本, 通过文本进行嵌入
                         with open(full_image_path, "rb") as f:
                             img_b64 = base64.b64encode(f.read()).decode("utf-8")
+                        system_content = {
+                            "role": "system",
+                            "content": [{"type": "text", "text": "You are a helpful assistant."}]
+                        }
                         user_content = {
                             "role": "user",
                             "content": [
@@ -198,7 +202,7 @@ def create_nodes(parsed_result_path_list: List[Path]) -> List[List[BaseNode]]:
                                 },
                             ],
                         }
-                        image_content = request_vlm(user_content=user_content)
+                        image_content = request_vlm(system_content=system_content, user_content=user_content)
                         image_content = image_caption + "\n" + image_content
 
                         meta_info = {
@@ -250,10 +254,7 @@ def build_corpus(nodes_list: List[List[BaseNode]], persist_dir: Path):
         )
         print(f"构建语料库{collection_name}成功")
 
-def load_corpus(
-    corpus_name: str,
-    persist_dir: Path
-) -> VectorStoreIndex:
+def load_corpus(corpus_name: str, persist_dir: Path) -> VectorStoreIndex:
     '''
     加载语料库
     '''
@@ -277,3 +278,9 @@ def load_corpus(
 
     except Exception as e:
         print(f"加载语料库{corpus_name}失败: {e}")
+
+def list_collections(persist_dir: Path) -> List[str]:
+    db = chromadb.PersistentClient(path=str(persist_dir))
+    collections = db.list_collections()
+    collections_names = [collection.name for collection in collections]
+    return collections_names

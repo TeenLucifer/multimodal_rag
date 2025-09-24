@@ -4,6 +4,7 @@ MinerU/
 Tutorial/
 utils/__pycache__/
 pdf_docs/parse_results/
+.vscode/
 
 .env
 test.py

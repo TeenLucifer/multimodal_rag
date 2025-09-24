@@ -1,6 +1,6 @@
 import base64
-from typing import Tuple, List, Union
-from llama_index.core.schema import BaseNode, TextNode, ImageNode, Document
+from typing import List
+from llama_index.core.schema import BaseNode
 from llama_index.core.retrievers import BaseRetriever
 
 from .request_models import request_vlm
