@@ -12,6 +12,23 @@ from llama_index.core.schema import BaseNode, TextNode, ImageNode, Document
 
 from .request_models import request_vlm
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+dashscope_api_key               = os.getenv("DASHSCOPE_API_KEY")
+dashscope_base_url              = os.getenv("DASHSCOPE_BASE_URL")
+dashscope_llm_model_name        = os.getenv("DASHSCOPE_LLM_MODEL_NAME")
+dashscope_vlm_model_name        = os.getenv("DASHSCOPE_VLM_MODEL_NAME")
+dashscope_text_embed_model_name = os.getenv("DASHSCOPE_TEXT_EMBED_MODEL_NAME")
+
+embed_model = DashScopeEmbedding(
+    model_name=dashscope_text_embed_model_name,
+    api_key=dashscope_api_key,
+    base_url=dashscope_base_url,
+    embed_batch_size=10
+)
+
 def _html_table_to_markdown_rapid(html_table):
     '''
     html格式的表格表格解析为markdown
@@ -203,19 +220,10 @@ def create_nodes(parsed_result_path_list: List[Path]) -> List[List[BaseNode]]:
 
     return nodes_list
 
-def build_corpus(
-    nodes_list: List[List[BaseNode]],
-    embed_base_url: str,
-    embed_api_key: str,
-    embed_model_name: str,
-    persist_dir: Path
-):
-    embed_model = DashScopeEmbedding(
-        model_name=embed_model_name,
-        api_key=embed_api_key,
-        base_url=embed_base_url,
-        embed_batch_size=10
-    )
+def build_corpus(nodes_list: List[List[BaseNode]], persist_dir: Path):
+    '''
+    创建语料库并嵌入
+    '''
     chroma_dir = persist_dir
     chroma_dir.mkdir(exist_ok=True) # 创建持久化目录
     db = chromadb.PersistentClient(path=str(chroma_dir)) # 创建ChromaDB客户端
@@ -244,17 +252,11 @@ def build_corpus(
 
 def load_corpus(
     corpus_name: str,
-    embed_base_url: str,
-    embed_api_key: str,
-    embed_model_name: str,
     persist_dir: Path
 ) -> VectorStoreIndex:
-    embed_model = DashScopeEmbedding(
-        model_name=embed_model_name,
-        api_key=embed_api_key,
-        base_url=embed_base_url,
-        embed_batch_size=10
-    )
+    '''
+    加载语料库
+    '''
     db = chromadb.PersistentClient(path=str(persist_dir))
 
     try:

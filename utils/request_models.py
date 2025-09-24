@@ -14,14 +14,15 @@ client = OpenAI(
     base_url=dashscope_base_url,
 )
 
-def request_vlm(user_content: dict) -> str:
+def request_vlm(
+    system_content: dict,
+    user_content: dict
+) -> str:
+    #TODO(wangjintao): 支持流式响应
     completion = client.chat.completions.create(
         model=dashscope_vlm_model_name,
         messages=[
-            {
-                "role": "system",
-                "content": [{"type": "text", "text": "You are a helpful assistant."}],
-            },
+            system_content,
             user_content
         ],
     )

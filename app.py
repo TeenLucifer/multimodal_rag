@@ -1,39 +1,31 @@
-import os
-from pathlib import Path
-#from utils.parse_pdf import parse_doc
-from utils.embedding import create_nodes, build_corpus
-from dotenv import load_dotenv
+'''
+f"""# 📄 {pdf_file.name}
+## 📋 文档信息
+- **文件名**: `{pdf_file.name}`
+- **总页数**: {num_pages}
+- **解析页数**: {min(num_pages, 2)}
+- **解析时间**: 1.8s
 
+## 📝 主要内容
 
-load_dotenv()
-dashscope_api_key               = os.getenv("DASHSCOPE_API_KEY")
-dashscope_base_url              = os.getenv("DASHSCOPE_BASE_URL")
-dashscope_llm_model_name        = os.getenv("DASHSCOPE_LLM_MODEL_NAME")
-dashscope_vlm_model_name        = os.getenv("DASHSCOPE_VLM_MODEL_NAME")
-dashscope_text_embed_model_name = os.getenv("DASHSCOPE_TEXT_EMBED_MODEL_NAME")
+{full_text[:1000]}{'...' if len(full_text) > 1000 else ''}
 
-# pdf解析 - 使用绝对路径
-__dir__ = os.path.dirname(os.path.abspath(__file__))
-output_dir = Path(__dir__) / "pdf_docs" / "parse_results"
-doc_path_list = [Path(__dir__) / "pdf_docs" / "deepseek-r1.pdf"]
-#parse_doc(
-#    path_list=doc_path_list,
-#    output_dir=output_dir,
-#    backend="pipeline"
-#)
-output_path_list = [] # 解析结果输出目录
-for doc_path in doc_path_list:
-    output_path = Path(output_dir / doc_path.stem / "auto")
-    output_path_list.append(output_path)
+## 📊 统计信息
 
-# 文档切分
-nodes_list = create_nodes(parsed_result_path_list=output_path_list)
+| 指标 | 数值 |
+|------|------|
+| 段落数 | {len(full_text.split('\\n\\n'))} |
+| 字符数 | {len(full_text)} |
+| 字数 | {len(full_text.split())} |
 
-# 嵌入
-build_corpus(
-    nodes_list=nodes_list,
-    embed_base_url=dashscope_base_url,
-    embed_api_key=dashscope_api_key,
-    embed_model_name=dashscope_text_embed_model_name,
-    persist_dir=Path(__dir__) / "chroma_storage"
-)
+## 🔍 文档结构
+
+- ✅ 标题提取
+- ✅ 段落识别  
+- ✅ 文本内容
+- ⏳ 图片提取（模拟）
+- ⏳ 表格提取（模拟）
+
+*以上为模拟解析结果*
+"""
+'''
